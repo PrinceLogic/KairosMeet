@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import { User } from "../models/user.model.js";
 import bcrypt, { hash } from "bcrypt";
-import crypto from "crypto";
+
 
 const login = async (req, res) => {
     const { username, password } = req.body;
@@ -13,10 +13,10 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: "Unauthorized" });
         }
-
         if (bcrypt.compare(password, user.password)) {
-            let token = crypto.randomBytes(20).toString("hex");
+            let token = crypto.randomBytes(20).toString('hex');
             user.token = token;
+            return user;
             await user.save();
             return res.status(httpStatus.OK).json({ message: "User logged in successfully", token });
 
