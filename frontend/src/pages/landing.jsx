@@ -99,6 +99,7 @@ function LandingPage() {
             <nav className="glass-nav">
                 <div className="logo">KairosMeet</div>
                 <div className="nav-actions">
+                    <button className="btn btn-primary">Join as Guest</button>
                     <button className="btn btn-ghost">Login</button>
                     <button className="btn btn-primary">Sign Up</button>
                 </div>
@@ -118,8 +119,7 @@ function LandingPage() {
                         Experience seamless, crystal-clear virtual meetings with KairosMeet. Elevate your team's collaboration with our cutting-edge platform.
                     </p>
                     <div className="hero-actions">
-                        <button className="btn btn-primary">Start for free</button>
-                        <button className="btn btn-ghost">Book a demo</button>
+                        <a href="/home"><button className="btn btn-primary">Start for free</button></a>
                     </div>
                 </motion.div>
             </main>
