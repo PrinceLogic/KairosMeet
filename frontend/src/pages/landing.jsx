@@ -119,7 +119,7 @@ function LandingPage() {
                         Experience seamless, crystal-clear virtual meetings with KairosMeet. Elevate your team's collaboration with our cutting-edge platform.
                     </p>
                     <div className="hero-actions">
-                        <a href="/home"><button className="btn btn-primary">Start for free</button></a>
+                        <a href="/auth"><button className="btn btn-primary">Start for free</button></a>
                     </div>
                 </motion.div>
             </main>
