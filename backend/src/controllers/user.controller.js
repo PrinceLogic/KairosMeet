@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import { User } from "../models/user.model.js";
 import bcrypt, { hash } from "bcrypt";
-
+import crypto from "crypto";
 
 const login = async (req, res) => {
     const { username, password } = req.body;
@@ -13,19 +13,20 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: "Unauthorized" });
         }
-        if (bcrypt.compare(password, user.password)) {
+        
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
             let token = crypto.randomBytes(20).toString('hex');
             user.token = token;
-            return user;
             await user.save();
             return res.status(httpStatus.OK).json({ message: "User logged in successfully", token });
-
+        } else {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid credentials" });
         }
     }
     catch (e) {
-        res.json({ message: `Error ${e.message}` });
+        res.status(500).json({ message: `Error ${e.message}` });
     }
-
 }
 
 const register = async (req, res) => {
@@ -44,11 +45,10 @@ const register = async (req, res) => {
             password: hashedPassword
         });
         await newUser.save();
-        res.status(httpStatus.CREATED).json({ message: " User registered successfully" });
+        res.status(httpStatus.CREATED).json({ message: "User registered successfully" });
 
     } catch (e) {
-        res.json({ message: `Error ${e.message}` });
-
+        res.status(500).json({ message: `Error ${e.message}` });
     }
 }
-export { login, register }
+export { login, register };

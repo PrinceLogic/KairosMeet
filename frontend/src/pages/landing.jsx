@@ -100,8 +100,8 @@ function LandingPage() {
                 <div className="logo">KairosMeet</div>
                 <div className="nav-actions">
                     <button className="btn btn-primary">Join as Guest</button>
-                    <button className="btn btn-ghost">Login</button>
-                    <button className="btn btn-primary">Sign Up</button>
+                    <a href="/auth"><button className="btn btn-ghost">Login</button></a>
+                    <a href="/auth"><button className="btn btn-primary">Sign Up</button></a>
                 </div>
             </nav>
             <main className="hero">
