@@ -1,4 +1,3 @@
-import { connections } from "mongoose";
 import { Server } from "socket.io";
 
 let connection = {}
@@ -15,14 +14,17 @@ export const connectToSocket = (server) => {
     });
 
     io.on("connection", (socket) => {
+
+        console.log("SOMETHING CONNECTED");
+
         socket.on("join-call", (path) => {
             if (connection[path] === undefined) {
                 connection[path] = [];
             }
-            connections[path].push(socket.id)
+            connection[path].push(socket.id)
             timeOnline[socket.id] = new Date();
             connection[path].forEach(elem => {
-                io.to(elem).emit("user-joined", socket.id, connections[path])
+                io.to(elem).emit("user-joined", socket.id, connection[path])
 
                 if (messages[path] !== undefined) {
                     for (let a = 0; a < messages[path].length; ++a) {
@@ -40,7 +42,7 @@ export const connectToSocket = (server) => {
 
 
         socket.on("chat-messages", (data, sender) => {
-            const [matchingRoom, found] = Oblect.entries(connections)
+            const [matchingRoom, found] = Object.entries(connection)
                 .reduce(([room, isFound], [roomKey, roomValue]) => {
                     if (isFound && roomValue.includes(socket.id)) {
                         return [roomKey, true];
@@ -66,15 +68,15 @@ export const connectToSocket = (server) => {
             var diffTime = Math.abs(timeOnline[socket.id] - new Date());
             var key;
 
-            for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connections)))) {
+            for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connection)))) {
                 for (let a = 0; a < v.length; ++a) {
                     if (v[a] === socket.id)
                         key = k
-                    for (let a = 0; a < connections[key].length; ++a) {
-                        io.to(connections[key][a]).emit("user-left", socket.id);
+                    for (let a = 0; a < connection[key].length; ++a) {
+                        io.to(connection[key][a]).emit("user-left", socket.id);
                     }
                     var index = connection[key].indexOf(socket.id)
-                    connections[key].splice(index, 1)
+                    connection[key].splice(index, 1)
                     if (connection[key].length === 0) {
                         delete connection[key]
                     }
