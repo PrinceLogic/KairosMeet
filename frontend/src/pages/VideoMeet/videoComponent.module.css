@@ -1,0 +1,140 @@
+.meetContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #202124;
+}
+
+.videoGrid {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.videoContainer {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #3c4043;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.videoElement {
+    height: 300px;
+    width: auto;
+    max-width: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.localVideo {
+    transform: scaleX(-1);
+}
+
+.controlBar {
+    height: 80px;
+    background-color: #3c4043;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.controlButton {
+    color: white !important;
+    background-color: #5f6368 !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.controlButton:hover {
+    background-color: #71757a !important;
+}
+
+.dangerButton {
+    background-color: #ea4335 !important;
+}
+
+.dangerButton:hover {
+    background-color: #d93025 !important;
+}
+
+.mainContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.chatContainer {
+    width: 320px;
+    background-color: #f8f9fa;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.chatHeader {
+    padding: 15px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatWindow {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chatMessage {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.chatMessageSender {
+    align-self: flex-start;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.messageLeft {
+    align-self: flex-start;
+    background-color: #e9ecef;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+.messageRight {
+    align-self: flex-end;
+    background-color: #1a73e8;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.chatInputContainer {
+    padding: 15px;
+    background-color: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+}
