@@ -70,15 +70,16 @@ export const connectToSocket = (server) => {
 
             for (const [k, v] of JSON.parse(JSON.stringify(Object.entries(connection)))) {
                 for (let a = 0; a < v.length; ++a) {
-                    if (v[a] === socket.id)
+                    if (v[a] === socket.id) {
                         key = k
-                    for (let a = 0; a < connection[key].length; ++a) {
-                        io.to(connection[key][a]).emit("user-left", socket.id);
-                    }
-                    var index = connection[key].indexOf(socket.id)
-                    connection[key].splice(index, 1)
-                    if (connection[key].length === 0) {
-                        delete connection[key]
+                        for (let a = 0; a < connection[key].length; ++a) {
+                            io.to(connection[key][a]).emit("user-left", socket.id);
+                        }
+                        var index = connection[key].indexOf(socket.id)
+                        connection[key].splice(index, 1)
+                        if (connection[key].length === 0) {
+                            delete connection[key]
+                        }
                     }
                 }
             }
