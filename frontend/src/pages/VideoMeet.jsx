@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import { autocompleteClasses } from '@mui/material/Autocomplete';
 
 const server_url = "http://localhost:8000";
 
@@ -120,7 +121,22 @@ export default function VideoMeetComponent() {
     let addMessage = () => {
 
     }
-    let getMessagesFromServer = () => {
+    let gotMessagesFromServer = (fromId, message) => {
+        var signal = JSON.parse(message);
+        if (fromId != socketIdRef.current) {
+            if (signal.sdp) {
+                connection[fromId].setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(() => {
+                    if (signal.sdp.type == "offer") {
+                        connections[fromId].createAnswer().then((description) => {
+                            connections[fromId].setLocalDescription(description).then(() => {
+                                socketIdRef.current.emit("signal", fromId, JSON.stringify({ "sdp": connection[fromId].localDescription }));
+                            })
+                        })
+                    }
+                })
+            }
+
+        }
 
     }
 
@@ -149,8 +165,55 @@ export default function VideoMeetComponent() {
                         }
                     }
 
+                    connections[socketListId].onaddstream = (event) => {
+                        let videoExists = videoRef.current.find(video => video.socketId == socketListId);
+
+                        if (videoExists) {
+                            setVideos(videos => {
+                                const updatedVideos = videos.map(video =>
+                                    video.socketId == socketListId ? { ...video, stream: event.stream } : video
+                                );
+                                videoRef.current = updatedVideos;
+                                return updatedVideos;
+                            })
+                        } else {
+                            let newVideo = {
+                                socketId: socketListId,
+                                stream: event.stream,
+                                autoplay: true,
+                                playsinline: true
+                            }
+                            setVideos(videos => {
+                                const updatedVideos = [...videos, newVideo];
+                                videoRef.current = updatedVideos;
+                                return updatedVideos;
+                            });
+                        }
+                    };
+
+                    if (window.localStream != undefined && window.localStream != null) {
+                        connection[socketListId].addStream(window.localStream);
+                    } else {
+
+                    }
 
                 })
+                if (id == socketIdRef.current) {
+                    for (let id2 in connection) {
+                        if (id2 == socketIdRef.current) continue;
+                        try {
+                            connection[id2].addStream(window.localStream)
+                        } catch (e) { }
+
+                        connection[id2].createOffer().then((description) => {
+                            connection[id2].setLocalDescription(description)
+                                .then(() => {
+                                    socketRef.current.emit("signal", id2, JSON.stringify({ 'sdp': connection[id2].localDescription }))
+                                })
+                                .catch(e => console.log(e));
+                        })
+                    }
+                }
             })
         });
     }
