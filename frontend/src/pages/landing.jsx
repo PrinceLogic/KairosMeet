@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import "../App.css";
 
@@ -96,6 +96,7 @@ const CanvasBackground = () => {
 
 function LandingPage() {
     const { userData, isAuthenticated, authLoading } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const getInitials = (name) => {
         if (!name) return '?';
@@ -111,14 +112,16 @@ function LandingPage() {
                 <div className="logo">KairosMeet</div>
                 <div className="nav-actions">
                     {authLoading ? null : isAuthenticated ? (
-                        <Link to="/profile" className="nav-profile-link" title="My Profile">
-                            <div className="nav-profile-avatar">
-                                {getInitials(userData?.name)}
-                            </div>
-                        </Link>
+                        <>
+
+                            <Link to="/profile" className="nav-profile-link" title="My Profile">
+                                <div className="nav-profile-avatar">
+                                    {getInitials(userData?.name)}
+                                </div>
+                            </Link>
+                        </>
                     ) : (
                         <>
-                            <button className="btn btn-primary">Join as Guest</button>
                             <a href="/auth"><button className="btn btn-ghost">Login</button></a>
                             <a href="/auth"><button className="btn btn-primary">Sign Up</button></a>
                         </>
@@ -140,7 +143,35 @@ function LandingPage() {
                         Experience seamless, crystal-clear virtual meetings with KairosMeet. Elevate your team's collaboration with our cutting-edge platform.
                     </p>
                     <div className="hero-actions">
-                        <a href="/auth"><button className="btn btn-primary">Start for free</button></a>
+                        {!authLoading && isAuthenticated ? (
+                            <>
+                                <button
+                                    id="hero-new-meeting-btn"
+                                    className="btn btn-primary"
+                                    onClick={() => navigate('/create')}
+                                >
+                                    New Meeting
+                                </button>
+                                <button
+                                    id="hero-join-meeting-btn"
+                                    className="btn btn-ghost"
+                                    style={{ border: '1.5px solid #ccc' }}
+                                    onClick={() => navigate('/join')}
+                                >
+                                    Join Meeting
+                                </button>
+                            </>
+                        ) : (
+                            <a href="/auth">
+                                <button
+                                    id="hero-start-free-btn"
+                                    className="btn btn-primary"
+                                    disabled={authLoading}
+                                >
+                                    Start for free
+                                </button>
+                            </a>
+                        )}
                     </div>
                 </motion.div>
             </main>
