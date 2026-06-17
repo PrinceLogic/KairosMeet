@@ -19,7 +19,12 @@ const login = async (req, res) => {
             let token = crypto.randomBytes(20).toString('hex');
             user.token = token;
             await user.save();
-            return res.status(httpStatus.OK).json({ message: "User logged in successfully", token });
+            return res.status(httpStatus.OK).json({
+                message: "User logged in successfully",
+                token,
+                name: user.name,
+                username: user.username
+            });
         } else {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid credentials" });
         }
@@ -51,4 +56,26 @@ const register = async (req, res) => {
         res.status(500).json({ message: `Error ${e.message}` });
     }
 }
-export { login, register };
+
+const getUserInfo = async (req, res) => {
+    try {
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "No token provided" });
+        }
+
+        const user = await User.findOne({ token });
+        if (!user) {
+            return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid token" });
+        }
+
+        return res.status(httpStatus.OK).json({
+            name: user.name,
+            username: user.username
+        });
+    } catch (e) {
+        res.status(500).json({ message: `Error ${e.message}` });
+    }
+}
+
+export { login, register, getUserInfo };

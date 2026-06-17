@@ -1,6 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
 import "../App.css";
+
 const CanvasBackground = () => {
     const canvasRef = useRef(null);
     useEffect(() => {
@@ -90,7 +93,15 @@ const CanvasBackground = () => {
     }, []);
     return <canvas ref={canvasRef} className="canvas-container" />;
 };
+
 function LandingPage() {
+    const { userData, isAuthenticated, authLoading } = useContext(AuthContext);
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    };
+
     return (
 
         <div className="app-container">
@@ -99,9 +110,19 @@ function LandingPage() {
             <nav className="glass-nav">
                 <div className="logo">KairosMeet</div>
                 <div className="nav-actions">
-                    <button className="btn btn-primary">Join as Guest</button>
-                    <a href="/auth"><button className="btn btn-ghost">Login</button></a>
-                    <a href="/auth"><button className="btn btn-primary">Sign Up</button></a>
+                    {authLoading ? null : isAuthenticated ? (
+                        <Link to="/profile" className="nav-profile-link" title="My Profile">
+                            <div className="nav-profile-avatar">
+                                {getInitials(userData?.name)}
+                            </div>
+                        </Link>
+                    ) : (
+                        <>
+                            <button className="btn btn-primary">Join as Guest</button>
+                            <a href="/auth"><button className="btn btn-ghost">Login</button></a>
+                            <a href="/auth"><button className="btn btn-primary">Sign Up</button></a>
+                        </>
+                    )}
                 </div>
             </nav>
             <main className="hero">

@@ -44,7 +44,7 @@ export const connectToSocket = (server) => {
         socket.on("chat-messages", (data, sender) => {
             const [matchingRoom, found] = Object.entries(connection)
                 .reduce(([room, isFound], [roomKey, roomValue]) => {
-                    if (isFound && roomValue.includes(socket.id)) {
+                    if (!isFound && roomValue.includes(socket.id)) {
                         return [roomKey, true];
                     }
                     return [room, isFound];
@@ -55,7 +55,7 @@ export const connectToSocket = (server) => {
                     messages[matchingRoom] = []
                 }
                 messages[matchingRoom].push({ 'sender': sender, "data": data, "socket-id-sender": socket.id })
-                console.log("messages: ", key, ":", sender, data);
+                console.log("messages: ", matchingRoom, ":", sender, data);
 
                 connection[matchingRoom].forEach(elem => {
                     io.to(elem).emit("chat-message", data, sender, socket.id);

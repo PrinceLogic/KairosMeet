@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import { autocompleteClasses } from '@mui/material/Autocomplete';
 import IconButton from '@mui/material/IconButton';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
@@ -14,7 +11,12 @@ import StopScreenShareIcon from '@mui/icons-material/StopScreenShare';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import Badge from '@mui/material/Badge';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { AuthContext } from '../../contexts/AuthContext';
 import styles from "./videoComponent.module.css";
 
 const server_url = "http://localhost:8000";
@@ -51,10 +53,20 @@ export default function VideoMeetComponent() {
     let [askMessages, setAskMessages] = useState();
     let [askForUserName, setAskForUserName] = useState(true);
     let [username, setUsername] = useState("");
+    let [copied, setCopied] = useState(false);
 
     const videoRef = useRef([]);
 
     let [videos, setVideos] = useState([]);
+
+    const { userData, isAuthenticated } = useContext(AuthContext);
+
+    // Auto-populate username from auth context
+    useEffect(() => {
+        if (isAuthenticated && userData?.username && !username) {
+            setUsername(userData.username);
+        }
+    }, [isAuthenticated, userData]);
 
 
     const getPermission = async () => {
@@ -103,7 +115,7 @@ export default function VideoMeetComponent() {
 
     let getUserMediaSuccess = (stream) => {
         try {
-            window.localStream.getTracks().forEach(track = track.stop());
+            window.localStream.getTracks().forEach(track => track.stop());
 
         } catch (e) { console.log(e) }
 
@@ -178,10 +190,6 @@ export default function VideoMeetComponent() {
             } catch (e) { }
         }
     }
-
-
-
-
 
 
     let sendMessage = () => {
@@ -394,16 +402,84 @@ export default function VideoMeetComponent() {
         routeTo("/");
     }
 
+    let handleCopyUrl = () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = window.location.href;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    }
+
     return (
         <div>
             {askForUserName == true ?
-                <div>
-                    <h2>Enter into Lobby</h2>
-                    <TextField id="outlined-basic" label="Username" value={username} onChange={(e) => setUsername(e.target.value)} variant="outlined" />
-                    <Button variant="contained" color="primary" onClick={connect}>Connect</Button>
+                <div className={styles.lobbyContainer}>
+                    {/* Ambient glow effects */}
+                    <div className={`${styles.lobbyGlow} ${styles.lobbyGlow1}`}></div>
+                    <div className={`${styles.lobbyGlow} ${styles.lobbyGlow2}`}></div>
+                    <div className={`${styles.lobbyGlow} ${styles.lobbyGlow3}`}></div>
 
-                    <div>
-                        <video ref={localVideoRef} autoPlay muted className={`${styles.videoElement} ${styles.localVideo}`}></video>
+                    <div className={styles.lobbyCard}>
+                        <h1 className={styles.lobbyTitle}>Join Meeting</h1>
+                        <p className={styles.lobbySubtitle}>Set up your audio and video before joining</p>
+
+                        {/* Meeting URL with copy button */}
+                        <div className={styles.meetingUrlSection}>
+                            <span className={styles.meetingUrlLabel}>Meeting Link</span>
+                            <div className={styles.meetingUrlRow}>
+                                <span className={styles.meetingUrlText}>{window.location.href}</span>
+                                <button
+                                    className={`${styles.copyBtn} ${copied ? styles.copyBtnSuccess : ''}`}
+                                    onClick={handleCopyUrl}
+                                >
+                                    {copied ? <CheckIcon style={{ fontSize: 16 }} /> : <ContentCopyIcon style={{ fontSize: 16 }} />}
+                                    {copied ? 'Copied!' : 'Copy'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Camera preview */}
+                        <div className={styles.lobbyPreviewSection}>
+                            <div className={styles.lobbyPreview}>
+                                <video
+                                    ref={localVideoRef}
+                                    autoPlay
+                                    muted
+                                    className={styles.lobbyPreviewVideo}
+                                ></video>
+                            </div>
+                        </div>
+
+                        {/* Username input */}
+                        <div className={styles.lobbyInputGroup}>
+                            <label className={styles.lobbyInputLabel}>Your Name</label>
+                            <input
+                                type="text"
+                                className={styles.lobbyInput}
+                                placeholder="Enter your display name"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && username.trim()) connect() }}
+                            />
+                        </div>
+
+                        {/* Join button */}
+                        <button
+                            className={styles.joinBtn}
+                            onClick={connect}
+                            disabled={!username.trim()}
+                        >
+                            Join Meeting
+                        </button>
                     </div>
                 </div> :
                 <div className={styles.meetContainer}>

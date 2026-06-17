@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import httpStatus from 'http-status';
@@ -9,8 +9,35 @@ const client = axios.create({
 });
 
 export const AuthProvider = ({ children }) => {
-    const [userData, setUserData] = useState({});
+    const [userData, setUserData] = useState(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
     const router = useNavigate();
+
+    // On mount, check localStorage for an existing token and fetch user info
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            client.get("/get-user-info", {
+                headers: { Authorization: token }
+            })
+                .then((res) => {
+                    setUserData(res.data);
+                    setIsAuthenticated(true);
+                })
+                .catch(() => {
+                    // Token is invalid or expired — clear it
+                    localStorage.removeItem("token");
+                    setUserData(null);
+                    setIsAuthenticated(false);
+                })
+                .finally(() => {
+                    setAuthLoading(false);
+                });
+        } else {
+            setAuthLoading(false);
+        }
+    }, []);
 
     const handleRegister = async ({ name, username, password }) => {
         try {
@@ -35,17 +62,32 @@ export const AuthProvider = ({ children }) => {
             });
             if (request.status === httpStatus.OK) {
                 localStorage.setItem("token", request.data.token);
+                setUserData({
+                    name: request.data.name,
+                    username: request.data.username
+                });
+                setIsAuthenticated(true);
             }
         } catch (err) {
             throw err;
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        setUserData(null);
+        setIsAuthenticated(false);
+        router("/");
+    };
+
     const data = {
         userData,
         setUserData,
+        isAuthenticated,
+        authLoading,
         handleRegister,
-        handleLogin
+        handleLogin,
+        handleLogout
     };
 
     return (
