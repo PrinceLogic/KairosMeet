@@ -122,6 +122,7 @@ function LandingPage() {
                         </>
                     ) : (
                         <>
+                            <a href="/join"><button className="btn btn-primary">Join as Guest</button></a>
                             <a href="/auth"><button className="btn btn-ghost">Login</button></a>
                             <a href="/auth"><button className="btn btn-primary">Sign Up</button></a>
                         </>
