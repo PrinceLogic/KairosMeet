@@ -19,7 +19,7 @@ import TextField from '@mui/material/TextField';
 import { AuthContext } from '../../contexts/AuthContext';
 import styles from "./videoComponent.module.css";
 
-const server_url = "http://localhost:8000";
+const server_url = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 var connections = {};
 

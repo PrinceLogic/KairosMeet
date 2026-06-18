@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import httpStatus from 'http-status';
 import { AuthContext } from './AuthContext';
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const client = axios.create({
-    baseURL: "http://localhost:8000/api/v1/users"
+    baseURL: `${backendUrl}/api/v1/users`
 });
 
 export const AuthProvider = ({ children }) => {

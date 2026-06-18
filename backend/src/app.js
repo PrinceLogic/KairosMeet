@@ -5,22 +5,34 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { connectToSocket } from "./controllers/socketManager.js";
 import userRoutes from "./routes/user.routes.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
 const io = connectToSocket(server);
 app.set("port", (process.env.PORT || 8000))
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "*", // Allow specified origin, fallback to * if not set
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true
+}));
 app.use(express.json({ limit: "40kb" }));
 app.use(express.urlencoded({ limit: "40kb", extended: true }));
 app.use("/api/v1/users", userRoutes);
 
 const start = async () => {
-    const connectionDb = await mongoose.connect("mongodb+srv://kaharprince2006_db_user:Kairos%40237@cluster0.ex3talm.mongodb.net/");
-    console.log("db connected");
-    server.listen(app.get("port"), () => {
-        console.log("listening at port 8000");
-    });
+    try {
+        const connectionDb = await mongoose.connect(process.env.MONGO_URI);
+        console.log("db connected");
+        server.listen(app.get("port"), () => {
+            console.log(`listening at port ${app.get("port")}`);
+        });
+    } catch (error) {
+        console.error("Database connection failed:", error);
+        process.exit(1);
+    }
 }
 start();
