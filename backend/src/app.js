@@ -15,7 +15,7 @@ const io = connectToSocket(server);
 app.set("port", (process.env.PORT || 8000))
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "*", // Allow specified origin, fallback to * if not set
+    origin: process.env.FRONTEND_URL || "https://kairos-meet.vercel.app", // Allow specified origin, fallback to * if not set
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
