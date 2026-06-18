@@ -14,8 +14,13 @@ const server = createServer(app);
 const io = connectToSocket(server);
 app.set("port", (process.env.PORT || 8000))
 
+const allowedOrigins = ["http://localhost:5173", "https://kairos-meet.vercel.app"];
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL.replace(/\/$/, ""));
+}
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "https://kairos-meet.vercel.app", // Allow specified origin, fallback to * if not set
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true
 }));
